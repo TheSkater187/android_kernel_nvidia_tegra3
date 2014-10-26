@@ -543,12 +543,14 @@ void debugfs_remove_recursive(struct dentry *dentry)
 		if (!debugfs_positive(child))
 			continue;
 
+
 		/* perhaps simple_empty(child) makes more sense */
 		if (!list_empty(&child->d_subdirs)) {
 			mutex_unlock(&parent->d_inode->i_mutex);
 			parent = child;
 			goto down;
 		}
+
  up:
 		if (!__debugfs_remove(child, parent))
 			simple_release_fs(&debugfs_mount, &debugfs_mount_count);

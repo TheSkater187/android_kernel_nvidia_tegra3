@@ -368,7 +368,9 @@ static struct dentry *d_kill(struct dentry *dentry, struct dentry *parent)
 	__releases(parent->d_lock)
 	__releases(dentry->d_inode->i_lock)
 {
-	__list_del_entry(&dentry->d_child);
+
+	list_del(&dentry->d_child);
+
 	/*
 	 * Inform ascending readers that we are no longer attached to the
 	 * dentry tree
@@ -1079,6 +1081,7 @@ ascend:
 		if (!locked && read_seqretry(&rename_lock, seq))
 			goto rename_retry;
 		next = child->d_child.next;
+
 		while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED)) {
 			if (next == &this_parent->d_subdirs)
 				goto ascend;
@@ -1086,6 +1089,7 @@ ascend:
 			next = next->next;
 		}
 		rcu_read_unlock();
+
 		goto resume;
 	}
 	if (!locked && read_seqretry(&rename_lock, seq))
@@ -1204,6 +1208,7 @@ ascend:
 		/* might go back up the wrong parent if we have had a rename */
 		if (!locked && read_seqretry(&rename_lock, seq))
 			goto rename_retry;
+
 		/* go into the first sibling still alive */
 		do {
 			next = child->d_child.next;
@@ -1212,6 +1217,7 @@ ascend:
 			child = list_entry(next, struct dentry, d_child);
 		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
 		rcu_read_unlock();
+
 		goto resume;
 	}
 out:
@@ -2990,6 +2996,7 @@ ascend:
 		if (!locked && read_seqretry(&rename_lock, seq))
 			goto rename_retry;
 		next = child->d_child.next;
+
 		while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED)) {
 			if (next == &this_parent->d_subdirs)
 				goto ascend;
@@ -2997,6 +3004,7 @@ ascend:
 			next = next->next;
 		}
 		rcu_read_unlock();
+
 		goto resume;
 	}
 	if (!locked && read_seqretry(&rename_lock, seq))
